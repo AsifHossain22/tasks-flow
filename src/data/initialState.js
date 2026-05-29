@@ -1,4 +1,4 @@
-export const initialState = {
+const initialState = {
   boardTitle: 'Time Management Matrix',
   listOrder: ['q1', 'q2', 'q3', 'q4'],
   lists: {
@@ -13,3 +13,5 @@ export const initialState = {
   },
   cards: {},
 };
+
+export default initialState;
