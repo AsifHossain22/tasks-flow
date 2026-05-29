@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import initialState from './data/initialState';
 import Navbar from './components/Navbar/Navbar';
+import { DragDropContext } from '@hello-pangea/dnd';
+import QuadrantColumn from './components/QuadrantColumn/QuadrantColumn';
 
 function App() {
   // GetFromLocalStorage
@@ -29,6 +31,47 @@ function App() {
       setActiveCardId(null);
     }
   };
+
+  // DragEnd
+  const onDragEnd = result => {
+    const { destination, source, draggableId } = result;
+    if (!destination) return;
+    if (
+      destination.droppableId === source.droppableId &&
+      destination.index === source.index
+    )
+      return;
+
+    setState(prev => {
+      const sourceList = prev.lists[source.droppableId];
+      const destList = prev.lists[destination.droppableId];
+
+      const sourceCardIds = [...sourceList.cardIds];
+      sourceCardIds.splice(source.index, 1);
+
+      if (source.droppableId === destination.droppableId) {
+        sourceCardIds.splice(destination.index, 0, draggableId);
+        return {
+          ...prev,
+          lists: {
+            ...prev.lists,
+            [source.droppableId]: { ...sourceList, cardIds: sourceCardIds },
+          },
+        };
+      } else {
+        const destCardIds = [...destList.cardIds];
+        destCardIds.splice(destination.index, 0, draggableId);
+        return {
+          ...prev,
+          lists: {
+            ...prev.lists,
+            [source.droppableId]: { ...sourceList, cardIds: sourceCardIds },
+            [destination.droppableId]: { ...destList, cardIds: destCardIds },
+          },
+        };
+      }
+    });
+  };
   return (
     <div className="min-h-screen bg-(--bg) text-(--text1) flex flex-col select-none">
       {/* Navbar */}
@@ -39,7 +82,20 @@ function App() {
       />
 
       {/* Main */}
-      <main></main>
+      <main className="p-5 flex-1 overflow-x-auto">
+        <DragDropContext onDragEnd={onDragEnd}>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-start max-w-7xl mx-auto">
+            {state.listOrder.map(listId => (
+              <QuadrantColumn
+                key={listId}
+                list={state.lists[listId]}
+                cards={state.cards}
+                onOpenModal={setActiveCardId}
+              />
+            ))}
+          </div>
+        </DragDropContext>
+      </main>
     </div>
   );
 }
