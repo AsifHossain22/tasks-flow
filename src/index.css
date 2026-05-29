@@ -1,0 +1,51 @@
+/* TailwindCSS */
+@import 'tailwindcss';
+
+/* GoogleFonts */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&family=Syne:wght@400..800&display=swap');
+
+@tailwind utilities;
+
+/* GlobalThemesAndAnimation */
+:root {
+  --bg: #0d1117;
+  --bg2: #161b22;
+  --bg3: #1c2333;
+  --bg4: #21262d;
+  --border: #30363d;
+  --border2: #3d444d;
+  --text1: #e6edf3;
+  --text2: #8b949e;
+  --text3: #656d76;
+}
+body {
+  background-color: var(--bg);
+  color: var(--text1);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+@keyframes cardIn {
+  from {
+    opacity: 0;
+    transform: scale(0.94) translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+.animate-card-in {
+  animation: cardIn 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* CustomScrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border2);
+  border-radius: 99px;
+}
