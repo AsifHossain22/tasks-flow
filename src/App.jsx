@@ -52,6 +52,29 @@ function App() {
     }));
   };
 
+  // HandleDeleteCardFunction
+  const handleDeleteCard = (cardId, listId) => {
+    if (!window.confirm('Delete this task?')) return;
+
+    setState(prev => {
+      const updatedCards = { ...prev.cards };
+      delete updatedCards[cardId];
+
+      return {
+        ...prev,
+        cards: updatedCards,
+        lists: {
+          ...prev.lists,
+          [listId]: {
+            ...prev.lists[listId],
+            cardIds: prev.lists[listId].cardIds.filter(id => id !== cardId),
+          },
+        },
+      };
+    });
+    if (activeCardId === cardId) setActiveCardId(null);
+  };
+
   // HandleResetBoard
   const handleResetBoard = () => {
     if (window.confirm('Reset all and clear local storage data?')) {
@@ -119,6 +142,7 @@ function App() {
                 list={state.lists[listId]}
                 cards={state.cards}
                 onAddCard={handleAddCard}
+                onDeleteCard={handleDeleteCard}
                 onOpenModal={setActiveCardId}
               />
             ))}

@@ -94,7 +94,7 @@ function QuadrantColumn({ list, cards, onAddCard, onDeleteCard, onOpenModal }) {
                           e.stopPropagation();
                           onDeleteCard(card.id, list.id);
                         }}
-                        className="absolute top-2 right-2 p-1 text-(--text3) hover:text-red-400 bg-(--bg2)/80 rounded border border-(--border)/50 opacity-0 group-hover:opacity-100 transition-all duration-150"
+                        className="absolute top-2 right-2 p-1 text-(--text3) hover:text-red-400 bg-(--bg2)/80 rounded border border-(--border)/50 opacity-0 group-hover:opacity-100 transition-all duration-150 cursor-pointer"
                       >
                         <Trash2 size={12} />
                       </button>
@@ -113,7 +113,7 @@ function QuadrantColumn({ list, cards, onAddCard, onDeleteCard, onOpenModal }) {
         {!isAdding ? (
           <button
             onClick={() => setIsAdding(true)}
-            className="w-full flex items-center gap-1.5 p-2 text-xs text-(--text3) hover:bg-white/5 hover:text-(--text1) rounded-lg transition-all"
+            className="w-full flex items-center gap-1.5 p-2 text-xs text-(--text3) hover:bg-white/5 hover:text-(--text1) rounded-lg transition-all duration-150 cursor-pointer"
           >
             <Plus size={14} /> Add a card
           </button>
@@ -135,7 +135,7 @@ function QuadrantColumn({ list, cards, onAddCard, onDeleteCard, onOpenModal }) {
             <div className="flex gap-1.5">
               <button
                 type="submit"
-                className="bg-blue-500 hover:bg-blue-600 text-white font-bold text-xs px-3 py-1.5 rounded-lg transition-all shadow-md"
+                className="bg-blue-500 hover:bg-blue-600 text-white font-bold text-xs px-3 py-1.5 rounded-lg transition-all shadow-md cursor-pointer"
               >
                 Add card
               </button>
@@ -145,7 +145,7 @@ function QuadrantColumn({ list, cards, onAddCard, onDeleteCard, onOpenModal }) {
                   setIsAdding(false);
                   setInputTitle('');
                 }}
-                className="text-(--text2) hover:bg-(--bg4) p-1.5 rounded-lg transition-all"
+                className="text-(--text2) hover:bg-(--bg4) p-1.5 rounded-lg transition-all cursor-pointer"
               >
                 <X size={14} />
               </button>
