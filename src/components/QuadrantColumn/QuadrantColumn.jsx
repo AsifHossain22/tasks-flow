@@ -108,7 +108,7 @@ function QuadrantColumn({ list, cards, onAddCard, onDeleteCard, onOpenModal }) {
         )}
       </Droppable>
 
-      {/* Inline Form Add-Actions Wrapper */}
+      {/* InlineFormAddActionsWrapper */}
       <div className="p-2 border-t border-(--border)/30">
         {!isAdding ? (
           <button

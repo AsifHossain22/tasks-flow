@@ -24,6 +24,34 @@ function App() {
     setState(prev => ({ ...prev, boardTitle: newTitle }));
   };
 
+  // HandleAddCardFunction
+  const handleAddCard = (listId, cardTitle) => {
+    // GenerateId
+    const newId = `card-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
+
+    // NewCard
+    const newCard = {
+      id: newId,
+      title: cardTitle,
+      description: '',
+      checklist: [],
+      dueDate: null,
+      coverColor: null,
+    };
+
+    setState(prev => ({
+      ...prev,
+      cards: { ...prev.cards, [newId]: newCard },
+      lists: {
+        ...prev.lists,
+        [listId]: {
+          ...prev.lists[listId],
+          cardIds: [...prev.lists[listId].cardIds, newId],
+        },
+      },
+    }));
+  };
+
   // HandleResetBoard
   const handleResetBoard = () => {
     if (window.confirm('Reset all and clear local storage data?')) {
@@ -90,6 +118,7 @@ function App() {
                 key={listId}
                 list={state.lists[listId]}
                 cards={state.cards}
+                onAddCard={handleAddCard}
                 onOpenModal={setActiveCardId}
               />
             ))}
