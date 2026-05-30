@@ -3,6 +3,7 @@ import initialState from './data/initialState';
 import Navbar from './components/Navbar/Navbar';
 import { DragDropContext } from '@hello-pangea/dnd';
 import QuadrantColumn from './components/QuadrantColumn/QuadrantColumn';
+import CardModal from './components/CardModal/CardModal';
 
 function App() {
   // GetFromLocalStorage
@@ -52,6 +53,14 @@ function App() {
     }));
   };
 
+  // HandleUpdateCardFunction
+  const handleUpdateCardDetails = updatedCard => {
+    setState(prev => ({
+      ...prev,
+      cards: { ...prev.cards, [updatedCard.id]: updatedCard },
+    }));
+  };
+
   // HandleDeleteCardFunction
   const handleDeleteCard = (cardId, listId) => {
     if (!window.confirm('Delete this task?')) return;
@@ -73,14 +82,6 @@ function App() {
       };
     });
     if (activeCardId === cardId) setActiveCardId(null);
-  };
-
-  // HandleResetBoard
-  const handleResetBoard = () => {
-    if (window.confirm('Reset all and clear local storage data?')) {
-      setState(initialState);
-      setActiveCardId(null);
-    }
   };
 
   // DragEnd
@@ -123,6 +124,14 @@ function App() {
       }
     });
   };
+
+  // HandleResetBoard
+  const handleResetBoard = () => {
+    if (window.confirm('Reset all and clear local storage data?')) {
+      setState(initialState);
+      setActiveCardId(null);
+    }
+  };
   return (
     <div className="min-h-screen bg-(--bg) text-(--text1) flex flex-col select-none">
       {/* Navbar */}
@@ -149,6 +158,17 @@ function App() {
           </div>
         </DragDropContext>
       </main>
+
+      {/* Modal */}
+      {activeCardId && state.cards[activeCardId] && (
+        <CardModal
+          card={state.cards[activeCardId]}
+          lists={state.lists}
+          onClose={() => setActiveCardId(null)}
+          onUpdate={handleUpdateCardDetails}
+          onDelete={handleDeleteCard}
+        />
+      )}
     </div>
   );
 }
