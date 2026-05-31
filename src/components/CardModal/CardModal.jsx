@@ -11,13 +11,7 @@ import {
 
 const SWATCH_COLORS = ['#EF4444', '#F97316', '#3B82F6', '#71717A'];
 
-export default function CardModal({
-  card,
-  lists,
-  onClose,
-  onUpdate,
-  onDelete,
-}) {
+function CardModal({ card, lists, onClose, onUpdate, onDelete }) {
   const [desc, setDesc] = useState(card.description || '');
   const [isEditingDesc, setIsEditingDesc] = useState(false);
   const [checkItemText, setCheckItemText] = useState('');
@@ -242,3 +236,5 @@ export default function CardModal({
     </div>
   );
 }
+
+export default CardModal;

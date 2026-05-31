@@ -4,6 +4,7 @@ import Navbar from './components/Navbar/Navbar';
 import { DragDropContext } from '@hello-pangea/dnd';
 import QuadrantColumn from './components/QuadrantColumn/QuadrantColumn';
 import CardModal from './components/CardModal/CardModal';
+import Swal from 'sweetalert2';
 
 function App() {
   // GetFromLocalStorage
@@ -19,6 +20,19 @@ function App() {
   useEffect(() => {
     localStorage.setItem('tasks_flow_root_data', JSON.stringify(state));
   }, [state]);
+
+  // DarkThemeConfigSweetAlert2
+  const swalCustomConfig = {
+    background: '#161b22',
+    color: '#e6edf3',
+    confirmButtonColor: '#3b82f6',
+    cancelButtonColor: '#21262d',
+    customClass: {
+      popup: 'border border-[#30363d] rounded-xl font-sans',
+      cancelButton:
+        'border border-[#30363d] text-[#8b949e] hover:text-white transition-colors',
+    },
+  };
 
   // UpdateBoardTitle
   const updateBoardTitle = newTitle => {
@@ -63,25 +77,47 @@ function App() {
 
   // HandleDeleteCardFunction
   const handleDeleteCard = (cardId, listId) => {
-    if (!window.confirm('Delete this task?')) return;
+    // ConfirmationBeforeDelete
+    Swal.fire({
+      title: 'Want to delete this task?',
+      text: "You won't be able to revert this!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, delete it!',
+      cancelButtonText: 'Cancel',
+      ...swalCustomConfig,
+    }).then(result => {
+      if (result.isConfirmed) {
+        setState(prev => {
+          const updatedCards = { ...prev.cards };
+          delete updatedCards[cardId];
 
-    setState(prev => {
-      const updatedCards = { ...prev.cards };
-      delete updatedCards[cardId];
+          return {
+            ...prev,
+            cards: updatedCards,
+            lists: {
+              ...prev.lists,
+              [listId]: {
+                ...prev.lists[listId],
+                cardIds: prev.lists[listId].cardIds.filter(id => id !== cardId),
+              },
+            },
+          };
+        });
 
-      return {
-        ...prev,
-        cards: updatedCards,
-        lists: {
-          ...prev.lists,
-          [listId]: {
-            ...prev.lists[listId],
-            cardIds: prev.lists[listId].cardIds.filter(id => id !== cardId),
-          },
-        },
-      };
+        if (activeCardId === cardId) setActiveCardId(null);
+
+        // SuccessMessage
+        Swal.fire({
+          title: 'Deleted!',
+          text: 'Your task has been deleted successfully!.',
+          icon: 'success',
+          timer: 1500,
+          showConfirmButton: false,
+          ...swalCustomConfig,
+        });
+      }
     });
-    if (activeCardId === cardId) setActiveCardId(null);
   };
 
   // DragEnd
@@ -127,10 +163,31 @@ function App() {
 
   // HandleResetBoard
   const handleResetBoard = () => {
-    if (window.confirm('Reset all and clear local storage data?')) {
-      setState(initialState);
-      setActiveCardId(null);
-    }
+    // ConfirmationBeforeReset
+    Swal.fire({
+      title: 'Want to reset entire matrix?',
+      text: 'This will wipe your current data entirely!',
+      icon: 'danger',
+      showCancelButton: true,
+      confirmButtonText: 'Reset Data',
+      cancelButtonText: 'Keep Data',
+      ...swalCustomConfig,
+    }).then(result => {
+      if (result.isConfirmed) {
+        setState(initialState);
+        setActiveCardId(null);
+
+        // SuccessMessage
+        Swal.fire({
+          title: 'Reset Completed!',
+          text: 'The matrix has been reverted to default.',
+          icon: 'success',
+          timer: 1500,
+          showConfirmButton: false,
+          ...swalCustomConfig,
+        });
+      }
+    });
   };
   return (
     <div className="min-h-screen bg-(--bg) text-(--text1) flex flex-col select-none">
