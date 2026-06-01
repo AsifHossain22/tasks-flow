@@ -44,7 +44,7 @@ function QuadrantColumn({ list, cards, onAddCard, onOpenModal, onDeleteList }) {
           <div
             ref={provided.innerRef}
             {...provided.droppableProps}
-            className={`p-2.5 flex-1 overflow-y-auto space-y-2 min-h-37.5 transition-colors duration-150 ${
+            className={`p-2.5 flex-1 overflow-y-auto space-y-2 min-h-25 transition-colors duration-150 ${
               snapshot.isDraggingOver ? 'bg-[#1f242c]/40' : 'bg-transparent'
             }`}
           >
