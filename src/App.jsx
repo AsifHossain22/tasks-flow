@@ -5,6 +5,7 @@ import { DragDropContext } from '@hello-pangea/dnd';
 import QuadrantColumn from './components/QuadrantColumn/QuadrantColumn';
 import CardModal from './components/CardModal/CardModal';
 import Swal from 'sweetalert2';
+import { Plus, X } from 'lucide-react';
 
 function App() {
   // GetFromLocalStorage
@@ -15,6 +16,10 @@ function App() {
 
   // ActiveCardId
   const [activeCardId, setActiveCardId] = useState(null);
+
+  // AddColumnState
+  const [addColumn, setAddColumn] = useState(false);
+  const [newColumnTitle, setNewColumnTitle] = useState('');
 
   // SetToLocalStorage
   useEffect(() => {
@@ -37,6 +42,72 @@ function App() {
   // UpdateBoardTitle
   const updateBoardTitle = newTitle => {
     setState(prev => ({ ...prev, boardTitle: newTitle }));
+  };
+
+  // HandleCreateColumnFunction
+  const handleAddColumn = e => {
+    e.preventDefault();
+    if (!newColumnTitle.trim()) return;
+
+    const newColumnId = `column-${Date.now()}`;
+    const newColumn = {
+      id: newColumnId,
+      title: newColumnTitle.trim(),
+      cardIds: [],
+    };
+
+    setState(prev => ({
+      ...prev,
+      lists: { ...prev.lists, [newColumnId]: newColumn },
+      listOrder: [...prev.listOrder, newColumnId],
+    }));
+
+    setNewColumnTitle('');
+    setAddColumn(false);
+  };
+
+  // HandleDeleteColumnFunction
+  const handleDeleteColumn = columnId => {
+    Swal.fire({
+      title: 'Want to delete this column?',
+      text: 'All tasks inside this column will be permanently removed!',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, delete this column',
+      cancelButtonText: 'Cancel',
+      ...swalCustomConfig,
+    }).then(result => {
+      if (result.isConfirmed) {
+        setState(prev => {
+          const newColumnOrder = prev.listOrder.filter(id => id !== columnId);
+          const newColumns = { ...prev.lists };
+          const newCards = { ...prev.cards };
+
+          // CleanUpCards
+          newColumns[columnId].cardIds.forEach(cardId => {
+            delete newCards[cardId];
+          });
+          delete newColumns[columnId];
+
+          return {
+            ...prev,
+            columnOrder: newColumnOrder,
+            columns: newColumns,
+            cards: newCards,
+          };
+        });
+
+        // SuccessMessage
+        Swal.fire({
+          title: 'Deleted!',
+          text: 'The column has been removed.',
+          icon: 'success',
+          timer: 1500,
+          showConfirmButton: false,
+          ...swalCustomConfig,
+        });
+      }
+    });
   };
 
   // HandleAddCardFunction
@@ -199,19 +270,64 @@ function App() {
       />
 
       {/* Main */}
-      <main className="p-5 flex-1 overflow-x-auto">
+      <main className="p-5 flex-1 overflow-x-auto overflow-y-auto">
         <DragDropContext onDragEnd={onDragEnd}>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-start max-w-7xl mx-auto">
+          <div className="flex gap-4 items-start max-w-full mx-auto pb-4">
             {state.listOrder.map(listId => (
-              <QuadrantColumn
-                key={listId}
-                list={state.lists[listId]}
-                cards={state.cards}
-                onAddCard={handleAddCard}
-                onDeleteCard={handleDeleteCard}
-                onOpenModal={setActiveCardId}
-              />
+              <div key={listId} className="w-72 md:w-80 shrink-0">
+                <QuadrantColumn
+                  list={state.lists[listId]}
+                  cards={state.cards}
+                  onAddCard={handleAddCard}
+                  onDeleteCard={handleDeleteCard}
+                  onOpenModal={setActiveCardId}
+                  onDeleteList={handleDeleteColumn}
+                />
+              </div>
             ))}
+            {/* AddColumn */}
+            <div className="w-72 md:w-80 shrink-0 bg-(--bg2)/60 border border-(--border) border-dashed rounded-xl p-3 backdrop-blur-md transition-all duration-150">
+              {!addColumn ? (
+                <button
+                  onClick={() => setAddColumn(true)}
+                  className="w-full flex items-center justify-center gap-2 py-3 text-sm font-semibold text-(--text2) hover:text-(--text1) hover:bg-white/5 rounded-lg transition-all cursor-pointer"
+                >
+                  <Plus size={16} /> Add new column
+                </button>
+              ) : (
+                <form
+                  onSubmit={handleAddColumn}
+                  className="flex flex-col gap-2.5"
+                >
+                  <input
+                    type="text"
+                    className="w-full bg-[#1a2332] border border-blue-500 rounded-lg text-xs p-2.5 text-(--text1) outline-none focus:ring-2 focus:ring-blue-500/20 font-medium"
+                    placeholder="Column name..."
+                    value={newColumnTitle}
+                    onChange={e => setNewColumnTitle(e.target.value)}
+                    autoFocus
+                  />
+                  <div className="flex gap-1.5 justify-end">
+                    <button
+                      type="submit"
+                      className="bg-blue-500 hover:bg-blue-600 text-white font-bold text-xs px-3 py-2 rounded-lg transition-all shadow-md cursor-pointer"
+                    >
+                      Add column
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setAddColumn(false);
+                        setNewColumnTitle('');
+                      }}
+                      className="text-(--text2) hover:bg-(--bg4) p-2 rounded-lg transition-all cursor-pointer"
+                    >
+                      <X size={14} />
+                    </button>
+                  </div>
+                </form>
+              )}
+            </div>
           </div>
         </DragDropContext>
       </main>
