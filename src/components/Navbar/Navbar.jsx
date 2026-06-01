@@ -61,7 +61,8 @@ function Navbar({ title, onTitleChange, onReset }) {
           title="Reset Matrix Data"
         >
           <RotateCcw size={14} className="animate-hover" />
-          <span className="hidden sm:inline">Reset Board</span>
+          {/* <span className="hidden sm:inline">Reset</span> */}
+          <span className="">Reset</span>
         </button>
       </div>
     </nav>

@@ -1,15 +1,8 @@
 import React, { useState } from 'react';
 import { Droppable, Draggable } from '@hello-pangea/dnd';
-import { Plus, X, Trash2, CheckSquare, Calendar, FileText } from 'lucide-react';
+import { Plus, X } from 'lucide-react';
 
-function QuadrantColumn({
-  list,
-  cards,
-  onAddCard,
-  onDeleteCard,
-  onOpenModal,
-  onDeleteList,
-}) {
+function QuadrantColumn({ list, cards, onAddCard, onOpenModal, onDeleteList }) {
   const [isAdding, setIsAdding] = useState(false);
   const [inputTitle, setInputTitle] = useState('');
 
@@ -20,101 +13,61 @@ function QuadrantColumn({
     setInputTitle('');
     setIsAdding(false);
   };
+
   return (
-    <div className="bg-(--bg2)/85 border border-(--border) rounded-xl flex flex-col max-h-[calc(100vh-100px)] backdrop-blur-md">
-      {/* ListHeader */}
-      <div className="p-3 flex items-center justify-between border-b border-(--border)/60">
+    <div className="bg-[#161b22] border border-[#30363d] rounded-xl flex flex-col max-h-[calc(100vh-140px)] shadow-sm">
+      {/* ColumnHeader */}
+      <div className="p-3 flex items-center justify-between border-b border-[#30363d]/60 bg-[#0d1117]/50 rounded-t-xl">
         <div className="flex items-center gap-2 truncate pr-2">
-          <h3 className="font-bold text-xs md:text-sm truncate">
+          <h3 className="font-semibold text-xs tracking-wider uppercase text-[#8b949e] truncate whitespace-normal">
             {list.title}
           </h3>
-          <span className="text-[11px] font-bold bg-(--bg4) px-2 py-0.5 rounded-full text-(--text2) shrink-0">
+          <span className="text-[10px] font-mono font-bold bg-[#21262d] text-[#c9d1d9] border border-[#30363d] px-1.5 py-0.5 rounded-md shrink-0">
             {list.cardIds.length}
           </span>
         </div>
-
         <button
-          onClick={() => onDeleteList(list.id)}
-          className="text-(--text3) hover:text-red-400 p-1 rounded-md hover:bg-red-500/10 transition-all duration-150 cursor-pointer shrink-0"
+          onClick={e => {
+            e.stopPropagation();
+            onDeleteList(list.id);
+          }}
+          className="text-[#8b949e] hover:text-red-400 p-1 rounded-md hover:bg-red-500/10 transition-colors cursor-pointer shrink-0"
           title="Delete column"
         >
-          <X size={14} />
+          <X size={13} />
         </button>
       </div>
 
-      {/* DroppableDropZoneContainer */}
+      {/* TaskDropZoneContainer */}
       <Droppable droppableId={list.id}>
-        {provided => (
+        {(provided, snapshot) => (
           <div
             ref={provided.innerRef}
             {...provided.droppableProps}
-            className="p-2 overflow-y-auto flex-1 flex flex-col gap-2 min-h-1"
+            className={`p-2.5 flex-1 overflow-y-auto space-y-2 min-h-37.5 transition-colors duration-150 ${
+              snapshot.isDraggingOver ? 'bg-[#1f242c]/40' : 'bg-transparent'
+            }`}
           >
-            {list.cardIds.map((id, index) => {
-              const card = cards[id];
+            {list.cardIds.map((cardId, index) => {
+              const card = cards[cardId];
               if (!card) return null;
-
-              const checkTotal = card.checklist?.length || 0;
-              const checkDone = card.checklist?.filter(i => i.done).length || 0;
-
               return (
                 <Draggable key={card.id} draggableId={card.id} index={index}>
-                  {(provided, snapshot) => (
+                  {(dragProvided, dragSnapshot) => (
                     <div
-                      ref={provided.innerRef}
-                      {...provided.draggableProps}
-                      {...provided.dragHandleProps}
+                      ref={dragProvided.innerRef}
+                      {...dragProvided.dragHandleProps}
+                      {...dragProvided.draggableProps}
                       onClick={() => onOpenModal(card.id)}
-                      className={`bg-[#1a2332] border border-(--border)/80 rounded-lg group hover:border-blue-500/40 hover:bg-[#1e2b3e] transition-all duration-150 cursor-grab active:cursor-grabbing relative overflow-hidden animate-card-in ${
-                        snapshot.isDragging
-                          ? 'shadow-2xl border-blue-500 ring-2 ring-blue-500/20'
-                          : ''
+                      className={`p-2.5 bg-[#0d1117] border rounded-lg cursor-pointer transition-colors ${
+                        dragSnapshot.isDragging
+                          ? 'border-[#58a6ff] bg-[#161b22]'
+                          : 'border-[#30363d] hover:border-[#8b949e]'
                       }`}
                     >
-                      {card.coverColor && (
-                        <div
-                          className="h-2 w-full"
-                          style={{ backgroundColor: card.coverColor }}
-                        />
-                      )}
-
-                      <div className="p-3">
-                        <p className="text-sm font-medium leading-relaxed wrap-break-word pr-6">
-                          {card.title}
-                        </p>
-
-                        <div className="flex flex-wrap gap-2 mt-2">
-                          {card.description && (
-                            <FileText size={13} className="text-(--text3)" />
-                          )}
-                          {card.dueDate && (
-                            <span className="text-[10px] font-semibold flex items-center gap-1 px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-500">
-                              <Calendar size={11} /> {card.dueDate}
-                            </span>
-                          )}
-                          {checkTotal > 0 && (
-                            <span
-                              className={`text-[10px] font-semibold flex items-center gap-1 px-1.5 py-0.5 rounded ${
-                                checkDone === checkTotal
-                                  ? 'bg-green-500/10 text-green-400'
-                                  : 'bg-(--bg4) text-(--text2)'
-                              }`}
-                            >
-                              <CheckSquare size={11} /> {checkDone}/{checkTotal}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-
-                      <button
-                        onClick={e => {
-                          e.stopPropagation();
-                          onDeleteCard(card.id, list.id);
-                        }}
-                        className="absolute top-2 right-2 p-1 text-(--text3) hover:text-red-400 bg-(--bg2)/80 rounded border border-(--border)/50 opacity-0 group-hover:opacity-100 transition-all duration-150 cursor-pointer"
-                      >
-                        <Trash2 size={12} />
-                      </button>
+                      <h4 className="text-xs font-medium text-[#c9d1d9] tracking-normal line-clamp-2">
+                        {card.title}
+                      </h4>
                     </div>
                   )}
                 </Draggable>
@@ -125,36 +78,31 @@ function QuadrantColumn({
         )}
       </Droppable>
 
-      {/* InlineFormAddActionsWrapper */}
-      <div className="p-2 border-t border-(--border)/30">
+      {/* ColumnFooter */}
+      <div className="p-2 border-t border-[#30363d]/40">
         {!isAdding ? (
           <button
             onClick={() => setIsAdding(true)}
-            className="w-full flex items-center gap-1.5 p-2 text-xs text-(--text3) hover:bg-white/5 hover:text-(--text1) rounded-lg transition-all duration-150 cursor-pointer"
+            className="w-full flex items-center justify-center gap-1 py-1.5 text-xs text-[#8b949e] hover:text-[#c9d1d9] hover:bg-[#21262d] rounded-md transition-all cursor-pointer font-medium"
           >
-            <Plus size={14} /> Add a card
+            <Plus size={13} /> Add task
           </button>
         ) : (
-          <form onSubmit={handleFormSubmit} className="flex flex-col gap-2">
-            <textarea
-              className="w-full bg-[#1a2332] border border-blue-500 rounded-lg text-xs p-2 text-(--text1) outline-none resize-none h-16 focus:ring-2 focus:ring-blue-500/20"
-              placeholder="Enter details for this task..."
+          <form onSubmit={handleFormSubmit} className="flex flex-col gap-2 p-1">
+            <input
+              type="text"
+              className="w-full bg-[#0d1117] border border-[#30363d] focus:border-[#58a6ff] rounded-md text-xs p-2 text-[#c9d1d9] outline-none transition-colors"
+              placeholder="New task title..."
               value={inputTitle}
               onChange={e => setInputTitle(e.target.value)}
               autoFocus
-              onKeyDown={e => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                  e.preventDefault();
-                  handleFormSubmit(e);
-                }
-              }}
             />
-            <div className="flex gap-1.5">
+            <div className="flex gap-1 justify-end">
               <button
                 type="submit"
-                className="bg-blue-500 hover:bg-blue-600 text-white font-bold text-xs px-3 py-1.5 rounded-lg transition-all shadow-md cursor-pointer"
+                className="bg-[#238636] hover:bg-[#2ea043] text-white font-medium text-xs px-2.5 py-1 rounded-md cursor-pointer transition-colors"
               >
-                Add card
+                Add
               </button>
               <button
                 type="button"
@@ -162,9 +110,9 @@ function QuadrantColumn({
                   setIsAdding(false);
                   setInputTitle('');
                 }}
-                className="text-(--text2) hover:bg-(--bg4) p-1.5 rounded-lg transition-all cursor-pointer"
+                className="text-[#8b949e] hover:bg-[#21262d] px-2 py-1 rounded-md cursor-pointer text-xs"
               >
-                <X size={14} />
+                Cancel
               </button>
             </div>
           </form>

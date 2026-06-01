@@ -45,10 +45,8 @@ function App() {
     },
   };
 
-  // --- Click & Drag Scroll Event Handlers ---
+  // ClickAndDragScrollHandlers
   const handleMouseDown = e => {
-    // Only drag scroll if clicking the main container background or empty spaces
-    // This prevents dragging the screen when trying to highlight text inside columns
     if (
       e.target.closest('button') ||
       e.target.closest('input') ||
@@ -61,7 +59,7 @@ function App() {
     mainScrollRef.current.classList.add('cursor-grabbing');
     mainScrollRef.current.classList.remove('cursor-grab');
 
-    // Get exact starting position relative to the element container
+    // GetExactStartingPosition
     startX.current = e.pageX - mainScrollRef.current.offsetLeft;
     scrollLeft.current = mainScrollRef.current.scrollLeft;
   };
@@ -87,7 +85,8 @@ function App() {
     e.preventDefault();
 
     const x = e.pageX - mainScrollRef.current.offsetLeft;
-    // Multiplied by 1.5 to make the scroll movement feel Snappy and Fast
+
+    // ScrollMovementFeelSnappyAndFast
     const walk = (x - startX.current) * 1.5;
     mainScrollRef.current.scrollLeft = scrollLeft.current - walk;
   };
