@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import initialState from './data/initialState';
 import Navbar from './components/Navbar/Navbar';
 import { DragDropContext } from '@hello-pangea/dnd';
@@ -21,6 +21,12 @@ function App() {
   const [isAddingList, setIsAddingList] = useState(false);
   const [newListTitle, setNewListTitle] = useState('');
 
+  // ClickAndDragToScroll
+  const mainScrollRef = useRef(null);
+  const isDown = useRef(false);
+  const startX = useRef(0);
+  const scrollLeft = useRef(0);
+
   // SetToLocalStorage
   useEffect(() => {
     localStorage.setItem('tasks_flow_root_data', JSON.stringify(state));
@@ -37,6 +43,53 @@ function App() {
       cancelButton:
         'border border-[#30363d] text-[#8b949e] hover:text-white transition-colors',
     },
+  };
+
+  // --- Click & Drag Scroll Event Handlers ---
+  const handleMouseDown = e => {
+    // Only drag scroll if clicking the main container background or empty spaces
+    // This prevents dragging the screen when trying to highlight text inside columns
+    if (
+      e.target.closest('button') ||
+      e.target.closest('input') ||
+      e.target.closest('form') ||
+      e.target.closest('[data-rfd-draggable-id]')
+    )
+      return;
+
+    isDown.current = true;
+    mainScrollRef.current.classList.add('cursor-grabbing');
+    mainScrollRef.current.classList.remove('cursor-grab');
+
+    // Get exact starting position relative to the element container
+    startX.current = e.pageX - mainScrollRef.current.offsetLeft;
+    scrollLeft.current = mainScrollRef.current.scrollLeft;
+  };
+
+  const handleMouseLeave = () => {
+    isDown.current = false;
+    if (mainScrollRef.current) {
+      mainScrollRef.current.classList.remove('cursor-grabbing');
+      mainScrollRef.current.classList.add('cursor-grab');
+    }
+  };
+
+  const handleMouseUp = () => {
+    isDown.current = false;
+    if (mainScrollRef.current) {
+      mainScrollRef.current.classList.remove('cursor-grabbing');
+      mainScrollRef.current.classList.add('cursor-grab');
+    }
+  };
+
+  const handleMouseMove = e => {
+    if (!isDown.current) return;
+    e.preventDefault();
+
+    const x = e.pageX - mainScrollRef.current.offsetLeft;
+    // Multiplied by 1.5 to make the scroll movement feel Snappy and Fast
+    const walk = (x - startX.current) * 1.5;
+    mainScrollRef.current.scrollLeft = scrollLeft.current - walk;
   };
 
   // UpdateBoardTitle
@@ -269,9 +322,16 @@ function App() {
       />
 
       {/* Main */}
-      <main className="p-5 flex-1 overflow-x-auto overflow-y-auto">
+      <main
+        ref={mainScrollRef}
+        onMouseDown={handleMouseDown}
+        onMouseLeave={handleMouseLeave}
+        onMouseUp={handleMouseUp}
+        onMouseMove={handleMouseMove}
+        className="p-5 flex-1 overflow-x-auto overflow-y-auto cursor-grab active:cursor-grabbing transition-colors duration-150 select-none"
+      >
         <DragDropContext onDragEnd={onDragEnd}>
-          <div className="flex gap-4 items-start max-w-full mx-auto pb-4">
+          <div className="flex gap-4 items-start max-w-full mx-auto pb-4 min-h-[calc(100vh-140px)]">
             {state.listOrder.map(listId => (
               <div key={listId} className="w-72 md:w-80 shrink-0">
                 <QuadrantColumn
