@@ -2,7 +2,14 @@ import React, { useState } from 'react';
 import { Droppable, Draggable } from '@hello-pangea/dnd';
 import { Plus, X, Trash2, CheckSquare, Calendar, FileText } from 'lucide-react';
 
-function QuadrantColumn({ list, cards, onAddCard, onDeleteCard, onOpenModal }) {
+function QuadrantColumn({
+  list,
+  cards,
+  onAddCard,
+  onDeleteCard,
+  onOpenModal,
+  onDeleteList,
+}) {
   const [isAdding, setIsAdding] = useState(false);
   const [inputTitle, setInputTitle] = useState('');
 
@@ -17,12 +24,22 @@ function QuadrantColumn({ list, cards, onAddCard, onDeleteCard, onOpenModal }) {
     <div className="bg-(--bg2)/85 border border-(--border) rounded-xl flex flex-col max-h-[calc(100vh-100px)] backdrop-blur-md">
       {/* ListHeader */}
       <div className="p-3 flex items-center justify-between border-b border-(--border)/60">
-        <h3 className="font-bold text-xs md:text-sm truncate pr-2">
-          {list.title}
-        </h3>
-        <span className="text-[11px] font-bold bg-(--bg4) px-2 py-0.5 rounded-full text-(--text2)">
-          {list.cardIds.length}
-        </span>
+        <div className="flex items-center gap-2 truncate pr-2">
+          <h3 className="font-bold text-xs md:text-sm truncate">
+            {list.title}
+          </h3>
+          <span className="text-[11px] font-bold bg-(--bg4) px-2 py-0.5 rounded-full text-(--text2) shrink-0">
+            {list.cardIds.length}
+          </span>
+        </div>
+
+        <button
+          onClick={() => onDeleteList(list.id)}
+          className="text-(--text3) hover:text-red-400 p-1 rounded-md hover:bg-red-500/10 transition-all duration-150 cursor-pointer shrink-0"
+          title="Delete column"
+        >
+          <X size={14} />
+        </button>
       </div>
 
       {/* DroppableDropZoneContainer */}
